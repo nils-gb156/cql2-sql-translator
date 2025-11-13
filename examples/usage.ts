@@ -78,3 +78,14 @@ const result10 = parseCQL2(filter10);
 console.log('Filter 10:', filter10);
 console.log('SQL:', result10.sql);
 console.log('Values:', result10.values);
+console.log();
+
+// Test SQL Injection attempt (will be blocked)
+console.log('--- SQL Injection Test ---');
+try {
+    const maliciousFilter = "id=1; DROP TABLE users--";
+    const resultBad = parseCQL2(maliciousFilter);
+    console.log('DANGER: Injection succeeded!', resultBad);
+} catch (error) {
+    console.log('✓ SQL Injection blocked:', error instanceof Error ? error.message : String(error));
+}
