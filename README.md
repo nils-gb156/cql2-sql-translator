@@ -17,4 +17,4 @@ Diese Bibliothek ermöglicht die Verarbeitung von CQL2-kompatiblen Filterausdrü
 ## Installation
 
 ```bash
-npm install cql2-sql-translator
+npm install git+https://github.com/nils-gb156/cql2-sql-translator.git#dev
