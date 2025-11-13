@@ -3,6 +3,10 @@
 
 # Build output
 /dist
+*.js
+*.js.map
+*.d.ts
+!jest.config.js
 
 # TypeScript
 *.tsbuildinfo
