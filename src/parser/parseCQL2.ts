@@ -32,8 +32,19 @@ export function parseCQL2(text: string): { sql: string; values: any[] } {
         throw new Error('Invalid CQL2 syntax: suspicious characters detected');
     }
     
-    // Match field='value' or field="value" (string with quotes)
-    let match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*(['"])(.*?)\2/i);
+    // Match field!='value' or field="value" (string with quotes) - NOT EQUAL
+    let match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*!=\s*(['"])(.*?)\2/i);
+    if (match) {
+        const fieldName = escapeIdentifier(match[1]);
+        const fieldValue = match[3];
+        return {
+            sql: `WHERE ${fieldName} != $1`,
+            values: [fieldValue]
+        };
+    }
+    
+    // Match field='value' or field="value" (string with quotes) - EQUAL
+    match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*(['"])(.*?)\2/i);
     if (match) {
         const fieldName = escapeIdentifier(match[1]);
         const fieldValue = match[3];
@@ -43,7 +54,18 @@ export function parseCQL2(text: string): { sql: string; values: any[] } {
         };
     }
     
-    // Match field=true or field=false (boolean)
+    // Match field!=true or field!=false (boolean) - NOT EQUAL
+    match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*!=\s*(true|false)/i);
+    if (match) {
+        const fieldName = escapeIdentifier(match[1]);
+        const fieldValue = match[2].toLowerCase() === 'true';
+        return {
+            sql: `WHERE ${fieldName} != $1`,
+            values: [fieldValue]
+        };
+    }
+    
+    // Match field=true or field=false (boolean) - EQUAL
     match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*(true|false)/i);
     if (match) {
         const fieldName = escapeIdentifier(match[1]);
@@ -54,7 +76,17 @@ export function parseCQL2(text: string): { sql: string; values: any[] } {
         };
     }
     
-    // Match field=null
+    // Match field!=null - NOT EQUAL
+    match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*!=\s*null/i);
+    if (match) {
+        const fieldName = escapeIdentifier(match[1]);
+        return {
+            sql: `WHERE ${fieldName} IS NOT NULL`,
+            values: []
+        };
+    }
+    
+    // Match field=null - EQUAL
     match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*null/i);
     if (match) {
         const fieldName = escapeIdentifier(match[1]);
@@ -64,7 +96,18 @@ export function parseCQL2(text: string): { sql: string; values: any[] } {
         };
     }
     
-    // Match field=number (integer, decimal, negative)
+    // Match field!=number (integer, decimal, negative) - NOT EQUAL
+    match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*!=\s*(-?\d+(?:\.\d+)?)/i);
+    if (match) {
+        const fieldName = escapeIdentifier(match[1]);
+        const fieldValue = Number(match[2]);
+        return {
+            sql: `WHERE ${fieldName} != $1`,
+            values: [fieldValue]
+        };
+    }
+    
+    // Match field=number (integer, decimal, negative) - EQUAL
     match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*(-?\d+(?:\.\d+)?)/i);
     if (match) {
         const fieldName = escapeIdentifier(match[1]);
@@ -75,7 +118,18 @@ export function parseCQL2(text: string): { sql: string; values: any[] } {
         };
     }
     
-    // Match field=value (other unquoted values)
+    // Match field!=value (other unquoted values) - NOT EQUAL
+    match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*!=\s*(\w+)/i);
+    if (match) {
+        const fieldName = escapeIdentifier(match[1]);
+        const fieldValue = match[2];
+        return {
+            sql: `WHERE ${fieldName} != $1`,
+            values: [fieldValue]
+        };
+    }
+    
+    // Match field=value (other unquoted values) - EQUAL
     match = text.match(/(\w+(?:\.\w+|\[['"]?\w+['"]?\])*)\s*=\s*(\w+)/i);
     if (match) {
         const fieldName = escapeIdentifier(match[1]);

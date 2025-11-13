@@ -80,6 +80,48 @@ console.log('SQL:', result10.sql);
 console.log('Values:', result10.values);
 console.log();
 
+console.log('--- NOT EQUAL Tests ---');
+
+// String not equal
+const filter11 = "title!='Test'";
+const result11 = parseCQL2(filter11);
+console.log('Filter 11:', filter11);
+console.log('SQL:', result11.sql);
+console.log('Values:', result11.values);
+console.log();
+
+// Number not equal
+const filter12 = "id!=5";
+const result12 = parseCQL2(filter12);
+console.log('Filter 12:', filter12);
+console.log('SQL:', result12.sql);
+console.log('Values:', result12.values);
+console.log();
+
+// Boolean not equal
+const filter13 = "active!=false";
+const result13 = parseCQL2(filter13);
+console.log('Filter 13:', filter13);
+console.log('SQL:', result13.sql);
+console.log('Values:', result13.values);
+console.log();
+
+// Not null
+const filter14 = "description!=null";
+const result14 = parseCQL2(filter14);
+console.log('Filter 14:', filter14);
+console.log('SQL:', result14.sql);
+console.log('Values:', result14.values);
+console.log();
+
+// Decimal not equal
+const filter15 = "price!=99.99";
+const result15 = parseCQL2(filter15);
+console.log('Filter 15:', filter15);
+console.log('SQL:', result15.sql);
+console.log('Values:', result15.values);
+console.log();
+
 // Test SQL Injection attempt (will be blocked)
 console.log('--- SQL Injection Test ---');
 try {
