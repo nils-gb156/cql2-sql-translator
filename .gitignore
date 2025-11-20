@@ -1,11 +1,11 @@
 # Dependencies
 /node_modules
 
-# Build output
-/dist
-*.js
-*.js.map
-*.d.ts
+# Build output - dist is now tracked for npm install from git
+# /dist commented out so dist/ is committed
+# *.js
+# *.js.map
+# *.d.ts
 !jest.config.js
 
 # TypeScript
