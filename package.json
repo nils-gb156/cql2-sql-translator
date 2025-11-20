@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "dev": "ts-node"
+    "dev": "ts-node",
+    "prepare": "npm run build"
   },
   "keywords": ["cql2", "sql", "stac", "translator"],
   "author": "",
