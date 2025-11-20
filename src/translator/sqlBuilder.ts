@@ -1,6 +1,6 @@
 // SQL Builder - converts AST to SQL
 
-import { ASTNode, ComparisonNode, LogicalNode, SQLResult } from '../types/ast';
+import { ASTNode, ComparisonNode, LogicalNode, SQLResult, LiteralNode } from '../types/ast';
 import { escapeIdentifier } from '../security/validator';
 
 /**
@@ -23,10 +23,12 @@ export function buildSQL(node: ASTNode): SQLResult {
 
 function buildComparison(node: ComparisonNode): SQLResult {
     const fieldName = escapeIdentifier(node.field);
-    const value = node.value.value;
+    const value = Array.isArray(node.value)
+        ? node.value.map(v => v.value)
+        : (node.value as LiteralNode).value;
     
-    // Special handling for NULL
-    if (node.value.dataType === 'null') {
+    // Special handling for NULL (only for single literal)
+    if (!Array.isArray(node.value) && node.value.dataType === 'null') {
         if (node.operator === '=') {
             return {
                 sql: `WHERE ${fieldName} IS NULL`,
@@ -41,7 +43,38 @@ function buildComparison(node: ComparisonNode): SQLResult {
             throw new Error(`Cannot use operator ${node.operator} with NULL`);
         }
     }
-    
+
+    // LIKE
+    if (node.operator === 'LIKE') {
+        return {
+            sql: `WHERE ${fieldName} LIKE $1`,
+            values: [value]
+        };
+    }
+
+    // IN
+    if (node.operator === 'IN') {
+        if (!Array.isArray(node.value) || node.value.length === 0) {
+            throw new Error('IN operator requires a non-empty list');
+        }
+        const placeholders = node.value.map((_, idx) => `$${idx + 1}`).join(', ');
+        return {
+            sql: `WHERE ${fieldName} IN (${placeholders})`,
+            values: value as any[]
+        };
+    }
+
+    // BETWEEN
+    if (node.operator === 'BETWEEN') {
+        if (!Array.isArray(node.value) || node.value.length !== 2) {
+            throw new Error('BETWEEN operator requires exactly two values');
+        }
+        return {
+            sql: `WHERE ${fieldName} BETWEEN $1 AND $2`,
+            values: value as any[]
+        };
+    }
+
     // Standard comparison with parameter binding
     return {
         sql: `WHERE ${fieldName} ${node.operator} $1`,

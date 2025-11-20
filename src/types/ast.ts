@@ -9,9 +9,10 @@ export type ASTNode =
 
 export interface ComparisonNode {
     type: 'comparison';
-    operator: '=' | '!=' | '<' | '>' | '<=' | '>=';
+    operator: '=' | '!=' | '<' | '>' | '<=' | '>=' | 'LIKE' | 'IN' | 'BETWEEN';
     field: string;
-    value: LiteralNode;
+    // For IN and BETWEEN we may need multiple values
+    value: LiteralNode | LiteralNode[];
 }
 
 export interface LogicalNode {

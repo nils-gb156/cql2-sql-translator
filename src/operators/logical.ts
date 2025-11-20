@@ -21,6 +21,15 @@ export function parseLogical(input: string): ASTNode | null {
         } as LogicalNode;
     }
 
+    // Important: do not split BETWEEN ... AND ...
+    // If BETWEEN is present at top level, we let the comparison parser handle it.
+    if (/\bBETWEEN\b/i.test(withoutOuter)) {
+        const comparison = parseComparison(withoutOuter);
+        if (comparison) {
+            return comparison;
+        }
+    }
+
     const andParts = splitTopLevel(withoutOuter, 'AND');
     if (andParts.length > 1) {
         const operands = andParts.map(part => parseLogicalOrComparison(part.trim()));
