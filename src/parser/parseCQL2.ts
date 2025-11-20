@@ -2,6 +2,7 @@
 import { ASTNode, SQLResult } from '../types/ast';
 import { sanitizeInput, validateCQL2Syntax } from '../security/sanitizer';
 import { parseComparison } from '../operators/comparison';
+import { parseLogical } from '../operators/logical';
 import { buildSQL } from '../translator/sqlBuilder';
 
 export function parseCQL2(text: string): SQLResult {
@@ -19,15 +20,18 @@ export function parseCQL2(text: string): SQLResult {
 function parseToAST(text: string): ASTNode {
     const trimmed = text.trim();
     
-    // Try parsing as comparison operator
+    // 1) Try full logical parser (which also handles pure comparisons)
+    const logicalOrComparison = parseLogical(trimmed);
+    if (logicalOrComparison) {
+        return logicalOrComparison;
+    }
+
+    // 2) Fallback: direct comparison (should normally be covered above)
     const comparisonNode = parseComparison(trimmed);
     if (comparisonNode) {
         return comparisonNode;
     }
     
-    // TODO: Add support for logical operators (AND, OR, NOT)
-    // TODO: Add support for spatial operators
-    // TODO: Add support for temporal operators
-    
+    // TODO: Add support for spatial and temporal operators
     throw new Error(`Unable to parse CQL2 filter: ${text}`);
 }
