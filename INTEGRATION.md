@@ -22,10 +22,14 @@ In deinem STAC API Projekt:
 npm link cql2-sql-translator
 ```
 
-### Option 3: Von GitHub installieren (später)
+### Option 3: Von GitHub installieren
 
 ```bash
-npm install git+https://github.com/nils-gb156/cql2-sql-translator.git
+# Dev-Branch (aktuell)
+npm install git+https://github.com/nils-gb156/cql2-sql-translator.git#dev
+
+# Main-Branch (später nach Merge)
+npm install git+https://github.com/nils-gb156/cql2-sql-translator.git#main
 ```
 
 ## Verwendung in deiner STAC API
@@ -149,6 +153,28 @@ parseCQL2("title='Sentinel-2A'")
 parseCQL2("price<100")
 // WHERE "price" < $1, values: [100]
 
+// LIKE Pattern Matching
+parseCQL2("title LIKE 'Sentinel%'")
+// WHERE "title" LIKE $1, values: ['Sentinel%']
+
+// IN Liste
+parseCQL2("id IN (1, 2, 3)")
+// WHERE "id" IN ($1, $2, $3), values: [1, 2, 3]
+
+// BETWEEN Bereich
+parseCQL2("price BETWEEN 10 AND 100")
+// WHERE "price" BETWEEN $1 AND $2, values: [10, 100]
+
+// Logische Operatoren
+parseCQL2("id=8 AND active=true")
+// WHERE "id" = $1 AND "active" = $2, values: [8, true]
+
+parseCQL2("price<100 OR active=false")
+// WHERE "price" < $1 OR "active" = $2, values: [100, false]
+
+parseCQL2("NOT active=true")
+// WHERE NOT ("active" = $1), values: [true]
+
 // Null-Check
 parseCQL2("description!=null")
 // WHERE "description" IS NOT NULL, values: []
@@ -179,14 +205,19 @@ try {
 }
 ```
 
-## Nächste Schritte
+## Aktuell unterstützte Features
 
-Aktuell unterstützt: `=`, `!=`, `<`, `>`, `<=`, `>=`
+✅ **Vergleichsoperatoren**: `=`, `!=`, `<`, `>`, `<=`, `>=`  
+✅ **Pattern Matching**: `LIKE`  
+✅ **Listen**: `IN`  
+✅ **Bereiche**: `BETWEEN`  
+✅ **Logische Operatoren**: `AND`, `OR`, `NOT`  
+✅ **Datentypen**: Strings, Zahlen, Booleans, Null  
+✅ **Property Paths**: `properties.field`, `properties['field']`
 
-Bald verfügbar:
-- `AND`, `OR`, `NOT` (logische Verknüpfungen)
-- `LIKE` (Pattern Matching)
-- `IN` (Liste von Werten)
-- `BETWEEN` (Bereich)
-- Räumliche Filter (`INTERSECTS`, etc.)
-- Zeitliche Filter (`BEFORE`, `AFTER`, etc.)
+## Noch nicht implementiert
+
+⏳ Räumliche Filter (`INTERSECTS`, `CONTAINS`, etc.)  
+⏳ Zeitliche Filter (`BEFORE`, `AFTER`, `DURING`)  
+⏳ Erweiterte Pattern (`STARTS WITH`, `ENDS WITH`)  
+⏳ Array-Operatoren für JSONB-Felder
